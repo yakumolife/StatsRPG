@@ -1,3 +1,13 @@
+// SAVE GAME
+function saveGame(stats) {
+  localStorage.setItem("statsRPG", JSON.stringify(stats));
+}
+
+// LOAD GAME
+function loadGame() {
+  const save = localStorage.getItem("statsRPG");
+  return save ? JSON.parse(save) : null;
+}
 (() => {
   "use strict";
 
