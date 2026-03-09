@@ -2,7 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "statsrpg.v1";
-  const MAX_LEVEL = 99;
+  const MAX_LEVEL = 200;
   const MAX_RECENT = 12;
 
   const SKILLS = [
