@@ -43,6 +43,20 @@
 
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+function getTier(level) {
+  if (level <= 25) return "White";
+  if (level <= 50) return "Yellow";
+  if (level <= 75) return "Orange";
+  if (level <= 100) return "Blue";
+  if (level <= 125) return "Purple";
+  if (level <= 150) return "Brown";
+  if (level <= 175) return "Black";
+  return "Red";
+}
+
+// RuneScape-like XP curve (approximate RS/OSRS formula).
+function xpForLevel(level) {
+
   // RuneScape-like XP curve (approximate RS/OSRS formula).
   function xpForLevel(level) {
     const L = clamp(Math.floor(level), 1, MAX_LEVEL + 1);
