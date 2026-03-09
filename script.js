@@ -6,9 +6,17 @@
   const MAX_RECENT = 12;
 
   const SKILLS = [
-    "Cardio",
-    "Strength",
-    "Weight",
+    "Back Squat",
+    "Deadlift",
+    "Bench Press",
+    "Shoulder Press",
+    "Clean",
+    "Snatch",
+    "Pull-ups",
+    "Pushups",
+    "Run",
+    "Row",
+    "Neuro/Core",
     "Finance",
     "Korean Language",
     "Social",
@@ -17,9 +25,17 @@
   ];
 
   const SKILL_COLORS = {
-    Cardio: ["#ff6b6b", "#ffd88a"],
-    Strength: ["#c9a857", "#ffbf69"],
-    Weight: ["#6b8cff", "#55d6a6"],
+    "Back Squat": ["#c9a857", "#ffbf69"],
+    "Deadlift": ["#ff6b6b", "#ffd88a"],
+    "Bench Press": ["#6b8cff", "#55d6a6"],
+    "Shoulder Press": ["#ff86c8", "#ffd88a"],
+    "Clean": ["#55d6a6", "#c9a857"],
+    "Snatch": ["#a78bfa", "#55d6a6"],
+    "Pull-ups": ["#ffd88a", "#6b8cff"],
+    "Pushups": ["#ff6b6b", "#ffd88a"],
+    "Run": ["#6b8cff", "#55d6a6"],
+    "Row": ["#a78bfa", "#55d6a6"],
+    "Neuro/Core": ["#9ca3af", "#ffd88a"],
     Finance: ["#55d6a6", "#c9a857"],
     "Korean Language": ["#ff86c8", "#ffd88a"],
     Social: ["#a78bfa", "#55d6a6"],
@@ -28,9 +44,17 @@
   };
 
   const DEFAULT_SYMBOLS = {
-    Cardio: "🏃",
-    Strength: "💪",
-    Weight: "⚖️",
+    "Back Squat": "🏋️",
+    Deadlift: "🏋️‍♂️",
+    "Bench Press": "🏋️‍♀️",
+    "Shoulder Press": "💪",
+    Clean: "⚡",
+    Snatch: "🔥",
+    Pullups: "🧗",
+    Pushups: "🤸",
+    Run: "🏃",
+    Row: "🚣",
+    "Neuro & Core": "🧠",
     Finance: "🪙",
     "Korean Language": "한",
     Social: "👥",
