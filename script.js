@@ -277,7 +277,8 @@ function xpForLevel(level) {
     detailXp.textContent = formatInt(prog.cur);
 
     const tier = getTier(prog.level);
-    document.querySelector("#detailTier").textContent = tier;
+    const tierEl = document.querySelector("#detailTier");
+    if (tierEl) tierEl.textContent = tier;
     detailPct.textContent = `${Math.floor(prog.pct)}%`;
     detailBar.style.width = `${prog.pct.toFixed(2)}%`;
     detailToNext.textContent = formatInt(prog.toNext);
