@@ -542,4 +542,35 @@ body{
   .skillCategory:hover {
     opacity: 1;
   }
+  .skillTitle {
+    margin-left: 6px;
+    font-size: 13px;
+    opacity: 0.7;
+    font-style: italic;
+  }
+  .skillMilestone {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+ 
 }
+ /* Heatmap */
+
+ #heatmap {
+  display: grid;
+  grid-template-columns: repeat(13, 14px);
+  gap: 3px;
+  margin: 12px 0 16px 0;
+}
+
+.heatCell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: #1e293b;
+}
+
+.heat1 { background: #166534; }
+.heat2 { background: #22c55e; }
+.heat3 { background: #4ade80; }
+.heat4 { background: #86efac; }
