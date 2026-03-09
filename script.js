@@ -275,6 +275,9 @@ function xpForLevel(level) {
     detailName.textContent = selectedSkill;
     detailLevel.textContent = String(prog.level);
     detailXp.textContent = formatInt(prog.cur);
+
+    const tier = getTier(prog.level);
+    document.querySelector("#detailTier").textContent = tier;
     detailPct.textContent = `${Math.floor(prog.pct)}%`;
     detailBar.style.width = `${prog.pct.toFixed(2)}%`;
     detailToNext.textContent = formatInt(prog.toNext);
