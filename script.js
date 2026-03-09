@@ -1,13 +1,3 @@
-// SAVE GAME
-function saveGame(stats) {
-  localStorage.setItem("statsRPG", JSON.stringify(stats));
-}
-
-// LOAD GAME
-function loadGame() {
-  const save = localStorage.getItem("statsRPG");
-  return save ? JSON.parse(save) : null;
-}
 (() => {
   "use strict";
 
@@ -177,7 +167,30 @@ function loadGame() {
   const clearRecentBtn = $("#clearRecentBtn");
 
   let selectedSkill = null;
+// DAILY QUEST SYSTEM
+const DAILY_QUEST = {
+  skill: "Discipline",
+  xp: 50,
+  text: "Complete one productive habit today"
+};
 
+function renderDailyQuest() {
+  const questBox = document.getElementById("dailyQuest");
+  if (!questBox) return;
+
+  questBox.innerHTML =
+    "Daily Quest: " +
+    DAILY_QUEST.text +
+    " (+" +
+    DAILY_QUEST.xp +
+    " XP)";
+
+}
+
+function completeDailyQuest() {
+  addXp(DAILY_QUEST.skill, DAILY_QUEST.xp, "Daily Quest");
+  alert("Daily Quest Complete! +" + DAILY_QUEST.xp + " XP");
+}
   function setIconGradient(iconEl, skillName) {
     const [a, b] = SKILL_COLORS[skillName] || ["#ffd88a", "#c9a857"];
     iconEl.style.background = `linear-gradient(180deg, ${a}33, ${b}99)`;
