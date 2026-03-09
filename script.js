@@ -5,24 +5,38 @@
   const MAX_LEVEL = 200;
   const MAX_RECENT = 12;
 
-  const SKILLS = [
-    "Back Squat",
-    "Deadlift",
-    "Bench Press",
-    "Shoulder Press",
-    "Clean",
-    "Snatch",
-    "Pull-ups",
-    "Pushups",
-    "Run",
-    "Row",
-    "Neuro/Core",
-    "Finance",
-    "Korean Language",
-    "Social",
-    "Knowledge",
-    "Discipline",
-  ];
+  const SKILL_CATEGORIES = {
+    Strength: [
+      "Back Squat",
+      "Deadlift",
+      "Bench Press",
+      "Shoulder Press",
+      "Clean",
+      "Snatch",
+      "Pull-ups",
+      "Pushups"
+    ],
+  
+    Conditioning: [
+      "Run",
+      "Row",
+      "Neuro/Core"
+    ],
+  
+    Mind: [
+      "Knowledge",
+      "Korean Language",
+      "Finance"
+    ],
+  
+    Character: [
+      "Discipline",
+      "Social"
+    ]
+  };
+  
+  // Flatten categories into the SKILLS list your app already uses
+  const SKILLS = Object.values(SKILL_CATEGORIES).flat();
 
   const SKILL_COLORS = {
     "Back Squat": ["#c9a857", "#ffbf69"],
@@ -239,6 +253,7 @@
   const clearRecentBtn = $("#clearRecentBtn");
 
   let selectedSkill = null;
+  let openCategories = {};
 
   function setIconGradient(iconEl, skillName) {
     const [a, b] = SKILL_COLORS[skillName] || ["#ffd88a", "#c9a857"];
@@ -313,7 +328,31 @@
   }
 
   function renderSkills() {
-    skillsGrid.replaceChildren(...SKILLS.map(renderSkillRow));
+    const elements = [];
+  
+    for (const [category, skills] of Object.entries(SKILL_CATEGORIES)) {
+  
+      const isOpen = openCategories[category] ?? true;
+  
+      const header = el("div", {
+        class: "skillCategory",
+        text: (isOpen ? "▼ " : "▶ ") + category + " (" + skills.length + ")",
+        onclick: () => {
+          openCategories[category] = !isOpen;
+          render();
+        }
+      });
+  
+      elements.push(header);
+  
+      if (isOpen) {
+        for (const skill of skills) {
+          elements.push(renderSkillRow(skill));
+        }
+      }
+    }
+  
+    skillsGrid.replaceChildren(...elements);
   }
 
   function renderTotals() {
