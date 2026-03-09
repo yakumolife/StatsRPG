@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StatsRPG</title>
+    <meta name="description" content="RuneScape-inspired personal stats tracker." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand__title">StatsRPG</div>
+          <div class="brand__subtitle">Train your real-life skills.</div>
+        </div>
+        <div class="topbar__actions">
+          <button id="logBtn" class="btn btn--primary" type="button">Log activity</button>
+          <button id="symbolsBtn" class="btn btn--ghost" type="button" title="Customize stat symbols">
+            Symbols
+          </button>
+          <button id="resetBtn" class="btn btn--ghost" type="button" title="Reset all data">
+            Reset
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel panel--stats" aria-label="Skills">
+          <div class="panel__header">
+            <div class="panel__title">Stats</div>
+            <div class="totals" aria-label="Totals">
+              <div class="totals__item">
+                <div class="totals__label">Total Level</div>
+                <div id="totalLevel" class="totals__value">0</div>
+              </div>
+              <div class="totals__divider" aria-hidden="true"></div>
+              <div class="totals__item">
+                <div class="totals__label">Total XP</div>
+                <div id="totalXp" class="totals__value">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="skillsGrid" class="skills" role="list"></div>
+        </section>
+
+        <aside class="panel panel--detail" aria-label="Skill detail">
+          <div class="panel__header">
+            <div class="panel__title">Detail</div>
+          </div>
+
+          <div id="detailEmpty" class="detailEmpty">
+            Tap a skill to view details, then log XP.
+          </div>
+
+          <div id="detailCard" class="detail" hidden>
+            <div class="detail__head">
+              <div class="skillIcon skillIcon--lg" aria-hidden="true"></div>
+              <div>
+                <div id="detailName" class="detail__name">Skill</div>
+                <div class="detail__meta">
+                  <span class="pill"
+                    >Level <strong id="detailLevel">1</strong></span
+                  >
+                  <span class="pill"><strong id="detailXp">0</strong> XP</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="progressBlock">
+              <div class="progressBlock__row">
+                <div class="progressBlock__label">Progress to next level</div>
+                <div id="detailPct" class="progressBlock__pct">0%</div>
+              </div>
+              <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                <div id="detailBar" class="bar__fill" style="width: 0%"></div>
+              </div>
+              <div class="progressBlock__sub">
+                <span
+                  ><strong id="detailToNext">0</strong> XP to next level</span
+                >
+              </div>
+            </div>
+
+            <div class="quickAdd">
+              <div class="quickAdd__title">Quick add</div>
+              <div class="quickAdd__row">
+                <button class="chip" type="button" data-xp="10">+10</button>
+                <button class="chip" type="button" data-xp="25">+25</button>
+                <button class="chip" type="button" data-xp="50">+50</button>
+                <button class="chip" type="button" data-xp="100">+100</button>
+              </div>
+            </div>
+
+            <div class="recent">
+              <div class="recent__head">
+                <div class="recent__title">Recent</div>
+                <button id="clearRecentBtn" class="linkBtn" type="button">Clear</button>
+              </div>
+              <div id="recentList" class="recent__list"></div>
+            </div>
+          </div>
+        </aside>
+      </main>
+
+      <dialog id="logDialog" class="dialog" aria-label="Log activity">
+        <form id="logForm" method="dialog" class="dialog__inner">
+          <div class="dialog__title">Log activity</div>
+
+          <label class="field">
+            <div class="field__label">Skill</div>
+            <select id="skillSelect" class="field__control"></select>
+          </label>
+
+          <label class="field">
+            <div class="field__label">XP</div>
+            <input
+              id="xpInput"
+              class="field__control"
+              inputmode="numeric"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="e.g. 25"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <div class="field__label">Note (optional)</div>
+            <input
+              id="noteInput"
+              class="field__control"
+              type="text"
+              maxlength="80"
+              placeholder="e.g. 20 min jog"
+            />
+          </label>
+
+          <div class="dialog__actions">
+            <button id="cancelBtn" class="btn btn--ghost" value="cancel" type="button">
+              Cancel
+            </button>
+            <button class="btn btn--primary" value="default" type="submit">Add XP</button>
+          </div>
+
+          <div class="dialog__hint">
+            Levels update automatically. Data is saved locally in your browser.
+          </div>
+        </form>
+      </dialog>
+
+      <dialog id="symbolsDialog" class="dialog" aria-label="Customize symbols">
+        <form id="symbolsForm" method="dialog" class="dialog__inner">
+          <div class="dialog__title">Symbols</div>
+
+          <div class="dialog__hint">
+            Pick a short symbol (emoji or text) for each stat. Leave blank to use the default.
+          </div>
+
+          <div id="symbolsList" class="symbolsList" role="list"></div>
+
+          <div class="dialog__actions">
+            <button id="symbolsCancelBtn" class="btn btn--ghost" type="button">Close</button>
+            <button class="btn btn--primary" value="default" type="submit">Save</button>
+          </div>
+        </form>
+      </dialog>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
