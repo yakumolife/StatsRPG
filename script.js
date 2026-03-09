@@ -147,6 +147,36 @@
   function formatInt(n) {
     return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
   }
+  function getDailyActivity() {
+
+    const counts = {};
+  
+    for (const skill in state.recentBySkill) {
+  
+      const records = state.recentBySkill[skill];
+  
+      for (const r of records) {
+  
+        const date = new Date(r.when).toISOString().slice(0,10);
+  
+        counts[date] = (counts[date] || 0) + 1;
+  
+      }
+  
+    }
+  
+    return counts;
+  }
+  function milestoneData(level) {
+    if (level >= 200) return { title: "Legend", color: "#ffcc00" };
+    if (level >= 150) return { title: "Grandmaster", color: "#ff5555" };
+    if (level >= 100) return { title: "Master", color: "#aa66ff" };
+    if (level >= 75) return { title: "Expert", color: "#4da6ff" };
+    if (level >= 50) return { title: "Adept", color: "#33cc99" };
+    if (level >= 25) return { title: "Apprentice", color: "#66cc66" };
+  
+    return { title: "Novice", color: "#aaaaaa" };
+  }
 
   function nowIso() {
     return new Date().toISOString();
@@ -260,7 +290,9 @@
     iconEl.style.background = `linear-gradient(180deg, ${a}33, ${b}99)`;
     iconEl.style.borderColor = `${b}55`;
   }
-
+  function getCharacterLevel(totalXp) {
+    return Math.floor(totalXp / 1000) + 1;
+  }
   function computeTotals() {
     let totalXp = 0;
     let totalLevel = 0;
@@ -275,6 +307,7 @@
   function renderSkillRow(name) {
     const xp = state.skills[name].xp || 0;
     const prog = progressToNext(xp);
+    const milestone = milestoneData(prog.level);
 
     const icon = el("div", { class: "skillIcon", "aria-hidden": "true" });
     setIconGradient(icon, name);
@@ -331,12 +364,19 @@
     const elements = [];
   
     for (const [category, skills] of Object.entries(SKILL_CATEGORIES)) {
-  
-      const isOpen = openCategories[category] ?? true;
+      let totalLevel = 0;
+
+      for (const skill of skills) {
+        const xp = state.skills[skill]?.xp || 0;
+        const prog = progressToNext(xp);
+        totalLevel += prog.level;
+      }
+      
+      const isOpen = openCategories[category] ?? false;
   
       const header = el("div", {
         class: "skillCategory",
-        text: (isOpen ? "▼ " : "▶ ") + category + " (" + skills.length + ")",
+        text: (isOpen ? "▼ " : "▶ ") + category + " (" + totalLevel + ")",
         onclick: () => {
           openCategories[category] = !isOpen;
           render();
@@ -359,6 +399,9 @@
     const { totalXp, totalLevel } = computeTotals();
     totalLevelEl.textContent = formatInt(totalLevel);
     totalXpEl.textContent = formatInt(totalXp);
+    const charLevel = getCharacterLevel(totalXp);
+    document.getElementById("characterLevel").textContent = charLevel;
+
   }
 
   function renderDetail() {
@@ -373,11 +416,16 @@
 
     const xp = state.skills[selectedSkill].xp || 0;
     const prog = progressToNext(xp);
-
+    const milestone = milestoneData(prog.level);
     const symbol = skillSymbol(selectedSkill);
     detailName.replaceChildren(
       el("span", { class: "skillSymbol skillSymbol--lg", text: symbol, "aria-hidden": "true" }),
-      el("span", { text: selectedSkill })
+      el("span", { text: selectedSkill }),
+      el("span", { 
+        class: "skillTitle", 
+        text: " • " + milestone.title,
+        style: `color:${milestone.color}`
+      })
     );
     detailLevel.textContent = String(prog.level);
     detailXp.textContent = formatInt(prog.cur);
@@ -412,10 +460,49 @@
     }
   }
 
+  function renderHeatmap() {
+
+    const container = document.getElementById("heatmap");
+  
+    const activity = getDailyActivity();
+  
+    const cells = [];
+  
+    const days = 91; // about 13 weeks
+  
+    for (let i = days - 1; i >= 0; i--) {
+  
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+  
+      const key = d.toISOString().slice(0,10);
+  
+      const count = activity[key] || 0;
+  
+      let level = 0;
+  
+      if (count >= 5) level = 4;
+      else if (count >= 3) level = 3;
+      else if (count >= 2) level = 2;
+      else if (count >= 1) level = 1;
+  
+      const cell = el("div", {
+        class: "heatCell heat" + level,
+        title: key + " — " + count + " activities"
+      });
+  
+      cells.push(cell);
+  
+    }
+  
+    container.replaceChildren(...cells);
+  
+  }
   function render() {
     renderTotals();
     renderSkills();
     renderDetail();
+    renderHeatmap();
   }
 
   function ensureSelectedSkill() {
