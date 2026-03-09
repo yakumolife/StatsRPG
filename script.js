@@ -433,6 +433,6 @@ function completeDailyQuest() {
   }
 
   init();
-renderDailyQuest();
+  renderDailyQuest();
 })();
 
