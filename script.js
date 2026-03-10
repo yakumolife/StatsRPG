@@ -34,7 +34,12 @@
       "Social"
     ]
   };
-  
+  let boss = {
+    name: "Procrastination Dragon",
+    maxHp: 1000,
+    hp: 1000,
+    defeated: false
+  };
   // Flatten categories into the SKILLS list your app already uses
   const SKILLS = Object.values(SKILL_CATEGORIES).flat();
 
@@ -143,6 +148,38 @@
       toNext: Math.max(0, nextMin - cur),
     };
   }
+  function updateBossUI() {
+
+    const hpPercent = (boss.hp / boss.maxHp) * 100;
+  
+    document.getElementById("bossHpBar").style.width = hpPercent + "%";
+  
+    document.getElementById("bossHpText").textContent =
+      "HP: " + boss.hp + " / " + boss.maxHp;
+  }
+  function resetBossIfNewWeek() {
+    const now = new Date();
+    const week = now.getFullYear() + "-" + getWeekNumber(now);
+  
+    if (state.bossWeek !== week) {
+      boss.hp = boss.maxHp;
+      boss.defeated = false;
+          
+      state.bossWeek = week;
+      state.bossHp = boss.hp;
+      state.bossDefeated = boss.defeated;
+      saveState(state);
+      updateBossUI();
+    }
+  }
+  
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+    return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+  }
 
   function formatInt(n) {
     return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
@@ -207,7 +244,18 @@
   function defaultState() {
     const skills = {};
     for (const name of SKILLS) skills[name] = { xp: 0, symbol: defaultSymbolForSkill(name) };
-    return { v: 2, skills, recentBySkill: {} };
+  
+    const now = new Date();
+    const week = now.getFullYear() + "-" + getWeekNumber(now);
+  
+    return {
+      v: 2,
+      skills,
+      recentBySkill: {},
+      bossHp: 1000,
+      bossDefeated: false,
+      bossWeek: week
+    };
   }
 
   function loadState() {
@@ -240,6 +288,10 @@
             note: typeof x.note === "string" ? x.note.slice(0, 80) : "",
           }));
       }
+      base.bossHp = Number.isFinite(parsed.bossHp) ? parsed.bossHp : 1000;
+      base.bossDefeated = parsed.bossDefeated === true;
+      base.bossWeek = typeof parsed.bossWeek === "string" ? parsed.bossWeek : null;
+      
       return base;
     } catch {
       return defaultState();
@@ -529,6 +581,23 @@
 
   function addXp(skillName, xpAmount, note = "") {
     const amt = Math.max(1, Math.floor(Number(xpAmount)));
+    
+    // Damage boss when XP is gained
+    boss.hp -= amt;
+    if (boss.hp < 0) boss.hp = 0;
+    
+    showDamage(amt);
+    updateBossUI();
+
+    if (boss.hp === 0 && !boss.defeated) {
+      boss.defeated = true;
+      alert("Boss defeated! New boss arrives next week.");
+    }
+    state.bossHp = boss.hp;
+    state.bossDefeated = boss.defeated;
+    
+    saveState(state);
+    
     state.skills[skillName].xp = (state.skills[skillName].xp || 0) + amt;
 
     if (!state.recentBySkill[skillName]) state.recentBySkill[skillName] = [];
@@ -543,7 +612,19 @@
     selectedSkill = skillName;
     render();
   }
-
+  function showDamage(amount) {
+    const container = document.getElementById("damageContainer");
+  
+    const dmg = document.createElement("div");
+    dmg.className = "damageNumber";
+    dmg.textContent = "+" + amount;
+  
+    container.appendChild(dmg);
+  
+    setTimeout(() => {
+      dmg.remove();
+    }, 1000);
+  }
   function hydrateSkillSelect() {
     const prev = skillSelect.value;
     skillSelect.replaceChildren(...SKILLS.map((s) => el("option", { value: s, text: `${skillSymbol(s)} ${s}` })));
@@ -624,6 +705,9 @@
         return;
       }
       addXp(skillName, xpAmount, noteInput.value);
+     
+
+      
       closeLogDialog();
     });
 
@@ -692,11 +776,26 @@
   }
 
   function init() {
+    if (state.bossHp !== undefined) {
+      boss.hp = state.bossHp;
+    }
+  
+    if (state.bossDefeated !== undefined) {
+      boss.defeated = state.bossDefeated;
+    }
+  
+    resetBossIfNewWeek();
+  
+    state.bossHp = boss.hp;
+    state.bossDefeated = boss.defeated;
+    saveState(state);
+  
     hydrateSkillSelect();
     bindEvents();
     render();
-  }
 
+    updateBossUI();
+  }
   init();
 })();
 
