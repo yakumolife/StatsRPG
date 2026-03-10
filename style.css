@@ -574,3 +574,30 @@ body{
 .heat2 { background: #22c55e; }
 .heat3 { background: #4ade80; }
 .heat4 { background: #86efac; }
+
+#damageContainer {
+  position: relative;
+  height: 0;
+}
+
+.damageNumber {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: bold;
+  font-size: 20px;
+  color: #ff6b6b;
+  pointer-events: none;
+  animation: floatDamage 1s ease-out forwards;
+}
+
+@keyframes floatDamage {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -40px);
+  }
+}
