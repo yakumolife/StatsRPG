@@ -6,6 +6,7 @@
   const MAX_RECENT = 12;
 
   const SKILL_CATEGORIES = {
+
     Strength: [
       "Back Squat",
       "Deadlift",
@@ -14,7 +15,7 @@
       "Clean",
       "Snatch",
       "Pull-ups",
-      "Pushups"
+      "Kettlebell Swings"
     ],
   
     Conditioning: [
@@ -26,12 +27,23 @@
     Mind: [
       "Knowledge",
       "Korean Language",
-      "Finance"
+      "Finance",
+      "Stretching"
     ],
   
     Character: [
-      "Discipline",
-      "Social"
+      "Discipline"
+    ],
+  
+    Social: [
+      "Twitter",
+      "LinkedIn"
+    ],
+  
+    Music: [
+      "Violin",
+      "Piano",
+      "Guitar"
     ]
   };
   let boss = {
@@ -51,7 +63,13 @@
     "Clean": ["#55d6a6", "#c9a857"],
     "Snatch": ["#a78bfa", "#55d6a6"],
     "Pull-ups": ["#ffd88a", "#6b8cff"],
-    "Pushups": ["#ff6b6b", "#ffd88a"],
+    "Kettlebell Swings": ["#ff6b6b", "#ffd88a"],
+    Stretching: ["#55d6a6", "#a78bfa"],
+    Twitter: ["#6b8cff", "#55d6a6"],
+    LinkedIn: ["#55d6a6", "#c9a857"],
+    Violin: ["#ff86c8", "#ffd88a"],
+    Piano: ["#a78bfa", "#55d6a6"],
+    Guitar: ["#ffd88a", "#ff6b6b"],
     "Run": ["#6b8cff", "#55d6a6"],
     "Row": ["#a78bfa", "#55d6a6"],
     "Neuro/Core": ["#9ca3af", "#ffd88a"],
@@ -70,15 +88,20 @@
     Clean: "⚡",
     Snatch: "🔥",
     Pullups: "🧗",
-    Pushups: "🤸",
     Run: "🏃",
     Row: "🚣",
     "Neuro & Core": "🧠",
     Finance: "🪙",
     "Korean Language": "한",
-    Social: "👥",
     Knowledge: "📚",
     Discipline: "🛡️",
+    "Kettlebell Swings": "🏋️",
+    Stretching: "🧘",
+    Twitter: "🐦",
+    LinkedIn: "💼",
+    Violin: "🎻",
+    Piano: "🎹",
+    Guitar: "🎸",
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -183,6 +206,48 @@
 
   function formatInt(n) {
     return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(n);
+  }
+  function renderWeeklyReport() {
+    const reportEl = document.getElementById("weeklyReportContent");
+  
+    const now = new Date();
+    const week = now.getFullYear() + "-" + getWeekNumber(now);
+  
+    let totalXp = 0;
+    let totalLogs = 0;
+    let skillTotals = {};
+  
+    for (const skill in state.recentBySkill) {
+      for (const entry of state.recentBySkill[skill]) {
+  
+        const entryDate = new Date(entry.when);
+        const entryWeek = entryDate.getFullYear() + "-" + getWeekNumber(entryDate);
+  
+        if (entryWeek === week) {
+          totalXp += entry.xp;
+          totalLogs++;
+  
+          skillTotals[skill] = (skillTotals[skill] || 0) + entry.xp;
+        }
+      }
+    }
+  
+    let topSkill = "None";
+    let topXp = 0;
+  
+    for (const skill in skillTotals) {
+      if (skillTotals[skill] > topXp) {
+        topXp = skillTotals[skill];
+        topSkill = skill;
+      }
+    }
+  
+    reportEl.replaceChildren(
+      el("div", { class: "weeklyItem", text: "XP gained this week: " + formatInt(totalXp) }),
+      el("div", { class: "weeklyItem", text: "Boss damage this week: " + formatInt(totalXp) }),
+      el("div", { class: "weeklyItem", text: "Activities logged: " + totalLogs }),
+      el("div", { class: "weeklyItem", text: "Top Skill: " + topSkill + " (+" + formatInt(topXp) + " XP)" })
+    );
   }
   function getDailyActivity() {
 
@@ -555,6 +620,8 @@
     renderSkills();
     renderDetail();
     renderHeatmap();
+    renderWeeklyReport();
+    renderCategoryStats();
   }
 
   function ensureSelectedSkill() {
@@ -660,7 +727,46 @@
       })
     );
   }
+  function renderCategoryStats() {
 
+    const container = document.getElementById("categoryStats");
+    container.innerHTML = "";
+  
+    Object.keys(SKILL_CATEGORIES).forEach(category => {
+  
+      let totalXp = 0;
+  
+      SKILL_CATEGORIES[category].forEach(skill => {
+        if (skills[skill]) {
+          totalXp += skills[skill].xp;
+        }
+      });
+  
+      const level = Math.floor(Math.sqrt(totalXp / 100));
+      const nextLevelXp = (level + 1) ** 2 * 100;
+      const currentLevelXp = level ** 2 * 100;
+  
+      const progress = (totalXp - currentLevelXp) / (nextLevelXp - currentLevelXp);
+  
+      const block = document.createElement("div");
+      block.className = "categoryBlock";
+  
+      block.innerHTML = `
+        <div class="categoryHeader">
+          <span class="categoryName">${category}</span>
+          <span class="categoryLevel">Lv ${level}</span>
+        </div>
+  
+        <div class="categoryBar">
+          <div class="categoryFill" style="width:${progress * 100}%"></div>
+        </div>
+      `;
+  
+      container.appendChild(block);
+  
+    });
+  
+  }
   function openSymbolsDialog() {
     ensureSelectedSkill();
     buildSymbolsList();
